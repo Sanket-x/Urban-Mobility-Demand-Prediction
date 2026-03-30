@@ -73,6 +73,6 @@ This system can help ride-hailing companies:
 ### Payment Analytics
 ![Payment Analytics](assets/payment_analytics.png)
 
-## Authors
+## Author
 
 Sanket Thakore
