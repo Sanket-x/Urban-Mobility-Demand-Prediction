@@ -822,7 +822,7 @@ elif page == "🔮 Predict Demand":
                         "day_of_week": day_idx,
                         "location": backend_location
                     }
-                    response = requests.post(API_URL, json=payload, timeout=5)
+                    response = requests.post(API_URL, json=payload, timeout=30)
                     
                     if response.status_code == 200:
                         st.session_state.prediction_result = response.json()
