@@ -2,6 +2,9 @@
 
 An AI-powered analytics and demand prediction platform designed for ride-hailing services such as Uber and Ola. The system focuses on understanding demand patterns, operational inefficiencies, and enabling data-driven decision making.
 
+## Live Demo  
+https://urban-mobility-demand-prediction-evruk9w4wwsnntgg44parv.streamlit.app/
+
 ## Features
 
 * Time series analysis of ride demand
