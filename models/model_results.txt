@@ -1,0 +1,27 @@
+--- Model Comparison Results ---
+
+Random Forest - MAE: 0.80, RMSE: 1.02
+XGBoost       - MAE: 0.80, RMSE: 1.02
+
+Best Performing Model: Random Forest Regressor
+Explanation: Random Forest predictions are closer to actual demand by 0.00 rides per hour on average.
+
+First 10 Predictions vs Actual Values:
+   Actual Demand  Predicted Demand
+0              2                 2
+1              2                 2
+2              2                 2
+3              2                 2
+4              2                 2
+5              1                 2
+6              5                 2
+7              1                 2
+8              1                 2
+9              1                 2
+
+Feature Importance Analysis (Random Forest Regressor):
+ - Hour: 31.59%
+ - Day_of_Week: 23.27%
+ - Location_Encoded: 41.06%
+ - is_weekend: 1.84%
+ - peak_hour: 2.24%
