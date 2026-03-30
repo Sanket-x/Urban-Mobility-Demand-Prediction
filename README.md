@@ -53,6 +53,26 @@ This system can help ride-hailing companies:
 * Improve overall customer experience
 * Enable data-driven operational decisions
 
+* ## Dashboard Preview
+
+### Platform Overview
+![Overview](assets/dashboard_overview.png)
+
+### Area Intelligence (Location-based Deep Insights)
+![Area Intelligence](assets/area_intelligence.png)
+
+### Time Intelligence (Demand Patterns)
+![Time Intelligence](assets/time_intelligence.png)
+
+### Vehicle Intelligence (Fleet Analysis)
+![Vehicle Intelligence](assets/vehicle_intelligence.png)
+
+### Cancellation Intelligence
+![Cancellation Intelligence](assets/cancellation_intelligence.png)
+
+### Payment Analytics
+![Payment Analytics](assets/payment_analytics.png)
+
 ## Authors
 
 Sanket Thakore
