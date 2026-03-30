@@ -774,7 +774,7 @@ elif page == "🔮 Predict Demand":
     st.markdown("<h1>🔮 Predict Engine</h1>", unsafe_allow_html=True)
     st.markdown("<p class='subtitle'>Live ML-driven demand forecasting via FastAPI backend.</p>", unsafe_allow_html=True)
     
-    API_URL = "http://127.0.0.1:8000/predict"
+    API_URL = "https://urban-mobility-demand-prediction.onrender.com/predict"
 
     DAYS_MAP = {
         0: "Monday", 1: "Tuesday", 2: "Wednesday",
