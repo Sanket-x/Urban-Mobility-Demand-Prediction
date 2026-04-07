@@ -78,5 +78,5 @@ This system can help ride-hailing companies:
 
 ## Author
 
-Sanket Thakore
+Sanket Thakore,
 Mridul Goswami
