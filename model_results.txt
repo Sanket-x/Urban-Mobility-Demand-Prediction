@@ -1,0 +1,28 @@
+
+============================================================
+  ADF Test — Original Series
+============================================================
+  Test Statistic : -27.373714
+  p-value        : 0.000000
+  Lags Used      : 0
+  Observations   : 720
+  Critical Value (1%): -3.4395
+  Critical Value (5%): -2.8656
+  Critical Value (10%): -2.5689
+
+  ➜ Conclusion: STATIONARY  (p < 0.05)
+============================================================
+
+============================================================
+  ADF Test — Pre-differencing check
+============================================================
+  Test Statistic : -27.373714
+  p-value        : 0.000000
+  Lags Used      : 0
+  Observations   : 720
+  Critical Value (1%): -3.4395
+  Critical Value (5%): -2.8656
+  Critical Value (10%): -2.5689
+
+  ➜ Conclusion: STATIONARY  (p < 0.05)
+============================================================
