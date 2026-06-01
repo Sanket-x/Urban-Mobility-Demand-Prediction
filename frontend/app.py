@@ -7,9 +7,6 @@ import time
 import requests
 import os
 
-# ------------------------------------------------------------------------------
-# 1. PAGE CONFIGURATION & THEME
-# ------------------------------------------------------------------------------
 st.set_page_config(
     page_title="Ola Mobility Intelligence",
     page_icon="⚡",
@@ -17,9 +14,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ------------------------------------------------------------------------------
-# 2. CUSTOM CSS FOR INDUSTRY-GRADE UI
-# ------------------------------------------------------------------------------
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -107,10 +101,6 @@ hr { border-top: 1px solid rgba(255, 255, 255, 0.1); }
 </style>
 """, unsafe_allow_html=True)
 
-# ------------------------------------------------------------------------------
-# 3. DATA LOADING & PREPROCESSING
-# ------------------------------------------------------------------------------
-# Define mapping globally so API prediction module can securely do reverse lookups!
 GLOBAL_AREA_MAP = {
     "Area-1": "Indiranagar", "Area-2": "Koramangala", "Area-3": "Whitefield", "Area-4": "HSR Layout",
     "Area-5": "Electronic City", "Area-6": "Jayanagar", "Area-7": "JP Nagar", "Area-8": "BTM Layout",
@@ -129,20 +119,17 @@ GLOBAL_AREA_MAP = {
 
 @st.cache_data
 def load_data():
-    # Adjust path if needed based on the run location
+                                                     
     base_dir = os.path.dirname(os.path.abspath(__file__))
     data_path = os.path.join(base_dir, "..", "data", "Bengaluru Ola.csv")
     
     df = pd.read_csv(data_path)
 
-    # Reference global mapping
     area_map = GLOBAL_AREA_MAP
     df['Pickup Location'] = df['Pickup Location'].map(area_map).fillna(df['Pickup Location'])
     if 'Drop Location' in df.columns:
         df['Drop Location'] = df['Drop Location'].map(area_map).fillna(df['Drop Location'])
 
-    
-    # Ensure Date and Time are properly parsed
     df['Datetime'] = pd.to_datetime(df['Date'] + ' ' + df['Time'], dayfirst=True)
     df['Date_Obj'] = df['Datetime'].dt.date
     df['Hour'] = df['Datetime'].dt.hour
@@ -153,20 +140,14 @@ def load_data():
     })
     df['Is_Weekend'] = df['Day_of_Week'].apply(lambda x: 'Weekend' if x >= 5 else 'Weekday')
     
-    # Fill categorical nulls
     df['Payment Method'] = df['Payment Method'].fillna('Unknown')
     
-    # Feature Engineering for mapping
-    # Assuming 'Success', 'Cancelled by Driver', 'Cancelled by Customer', 'Incomplete'
     df['Is_Success'] = (df['Booking Status'] == 'Success').astype(int)
     
     return df
 
 df = load_data()
 
-# ------------------------------------------------------------------------------
-# 4. CHART STYLING HELPER
-# ------------------------------------------------------------------------------
 def get_chart_layout(title=""):
     return dict(
         plot_bgcolor="rgba(0,0,0,0)",
@@ -182,9 +163,6 @@ def get_chart_layout(title=""):
 
 COLOR_PALETTE = ["#00FFAE", "#00B8FF", "#A855F7", "#FF4757", "#FFC107", "#F97316"]
 
-# ------------------------------------------------------------------------------
-# 5. NAVIGATION (SIDEBAR)
-# ------------------------------------------------------------------------------
 with st.sidebar:
     st.markdown("### Mobility Intelligence")
     st.markdown("<p style='color:#64748B; font-size:0.85rem;'>Enterprise Analytics Platform</p>", unsafe_allow_html=True)
@@ -207,16 +185,10 @@ with st.sidebar:
     
     st.markdown("<hr/>", unsafe_allow_html=True)
 
-
-# ------------------------------------------------------------------------------
-# 6. PAGE ROUTING & RENDERING
-# ------------------------------------------------------------------------------
-
 if page == "🏠 Executive Summary":
     st.markdown("<h1>Platform Overview</h1>", unsafe_allow_html=True)
     st.markdown("<p class='subtitle'>High-level metrics and system health for the Bengaluru region.</p>", unsafe_allow_html=True)
     
-    # 1. KPI row
     col1, col2, col3, col4 = st.columns(4)
     total_bookings = len(df)
     success_rate = (df['Booking Status'] == 'Success').mean() * 100
@@ -301,7 +273,6 @@ if page == "🏠 Executive Summary":
         </div>
         """, unsafe_allow_html=True)
 
-
 elif page == "⏰ Time Intelligence":
     st.markdown("<h1>Time Intelligence</h1>", unsafe_allow_html=True)
     st.markdown("<p class='subtitle'>Temporal patterns of passenger demand and network utilization.</p>", unsafe_allow_html=True)
@@ -362,9 +333,9 @@ elif page == "⏰ Time Intelligence":
         
     c_hist, c_wknd = st.columns(2)
     with c_hist:
-        # Histogram of Demand Distribution
+                                          
         st.markdown("**Demand Distribution (Requests/Hour)**")
-        # To get requests per hour (aggregated) we already did groupby Date and Hour
+                                                                                    
         hx = df.groupby(['Date_Obj', 'Hour']).size().reset_index(name='Requests')
         fig_dist = px.histogram(
             hx, x='Requests', nbins=30,
@@ -395,7 +366,6 @@ elif page == "⏰ Time Intelligence":
         st.plotly_chart(fig_wknd, use_container_width=True)
         st.markdown("""<p style="font-size:0.85rem;color:#A0AEC0;"><b>Insight:</b> Weekdays have sharp morning peaks, while weekends show sustained, growing demand into the late night.</p>""", unsafe_allow_html=True)
 
-
 elif page == "📍 Location Intelligence":
     st.markdown("<h1>Location Intelligence</h1>", unsafe_allow_html=True)
     st.markdown("<p class='subtitle'>Spatial dynamics, geographical hotspots, and routing efficiency.</p>", unsafe_allow_html=True)
@@ -416,7 +386,7 @@ elif page == "📍 Location Intelligence":
         st.markdown("""<div class="insight-box"><b>Insight:</b> Area-39 and Area-4 consistently drive the most traffic. Fleets should be pre-positioned nearby during shift starts.</div>""", unsafe_allow_html=True)
 
     with col_t2:
-        # Calculate cancellation rate by location
+                                                 
         cancels = df[df['Booking Status'].isin(['Cancelled by Customer', 'Cancelled by Driver'])]
         cancel_rates = (cancels.groupby('Pickup Location').size() / df.groupby('Pickup Location').size() * 100).fillna(0).reset_index(name='Cancel_Rate_%')
         high_cancel_loc = cancel_rates.sort_values(by='Cancel_Rate_%', ascending=False).head(10)
@@ -432,7 +402,7 @@ elif page == "📍 Location Intelligence":
         st.markdown("""<div class="insight-box"><b>Insight:</b> Certain nodes experience higher friction. Interventions (e.g., driver mapping education, improved pickup zones) are required for these critical failure points.</div>""", unsafe_allow_html=True)
         
     st.markdown("### Location vs Peak Hour Density")
-    # Finding the peak hour for top 20 locations
+                                                
     top_20 = top_loc['Location'].head(20).tolist()
     loc_hr = df[df['Pickup Location'].isin(top_20)].groupby(['Pickup Location', 'Hour']).size().reset_index(name='Volume')
     idx = loc_hr.groupby(['Pickup Location'])['Volume'].transform(max) == loc_hr['Volume']
@@ -446,7 +416,6 @@ elif page == "📍 Location Intelligence":
     fig_bubble.update_xaxes(tickmode='linear', dtick=1, range=[-1, 24])
     st.plotly_chart(fig_bubble, use_container_width=True)
     st.markdown("""<div class="insight-box"><b>Insight:</b> Office parks peak strictly at evening hours (17:00-19:00), whereas residential hubs peak in the morning. Supply must physically shift across the grid mid-day.</div>""", unsafe_allow_html=True)
-
 
 elif page == "🚗 Vehicle Intelligence":
     st.markdown("<h1>Vehicle Intelligence</h1>", unsafe_allow_html=True)
@@ -490,7 +459,6 @@ elif page == "💳 Payment Analysis":
     st.markdown("<h1>Payment Analytics</h1>", unsafe_allow_html=True)
     st.markdown("<p class='subtitle'>Financial interactions, frictionless checkout, and value flow.</p>", unsafe_allow_html=True)
     
-    # Filter out unknowns for pristine analysis if necessary
     df_pay = df[df['Payment Method'] != 'Unknown']
     
     c1, c2 = st.columns(2)
@@ -587,11 +555,10 @@ elif page == "❌ Cancellation Intelligence":
         st.plotly_chart(fig_ch, use_container_width=True)
         st.markdown("""<div class="insight-box"><b>Insight:</b> Cancellations correlate almost perfectly with peak demand hours. The system experiences high load and ETAs bloat, leading to immense user frustration and driver abandonment.</div>""", unsafe_allow_html=True)
         
-    # Attempting to plot cancellation reasons if the column is well populated
     if 'Reason for Cancelling by Driver' in cancellations.columns and len(cancellations['Reason for Cancelling by Driver'].dropna()) > 0:
         top_reasons = cancellations['Reason for Cancelling by Driver'].value_counts().reset_index()
         top_reasons.columns = ['Reason', 'Count']
-        # filter out 'na'
+                         
         top_reasons = top_reasons[top_reasons['Reason'].str.lower() != 'na'].head(6)
         
         fig_c_rsn = px.bar(top_reasons, y='Reason', x='Count', orientation='h', color='Count', color_continuous_scale='Sunsetdark')
@@ -599,7 +566,6 @@ elif page == "❌ Cancellation Intelligence":
         fig_c_rsn.update_yaxes(categoryorder='total ascending')
         st.plotly_chart(fig_c_rsn, use_container_width=True)
         st.markdown("""<div class="insight-box"><b>Insight:</b> Investigating explicit reasons helps tailor penalty models and algorithmic dispatch rules.</div>""", unsafe_allow_html=True)
-
 
 elif page == "📍 Area Intelligence":
     st.markdown("<h1>📍 Area Intelligence</h1>", unsafe_allow_html=True)
@@ -616,7 +582,7 @@ elif page == "📍 Area Intelligence":
     if len(df_area) == 0:
         st.warning(f"No data available for {selected_area}")
     else:
-        # SECTION 1: AREA SUMMARY
+                                 
         st.markdown("### Area Summary")
         c1, c2, c3, c4 = st.columns(4)
         
@@ -637,7 +603,6 @@ elif page == "📍 Area Intelligence":
             
         st.markdown("<br/>", unsafe_allow_html=True)
         
-        # SECTION 2: DEMAND ANALYSIS
         st.markdown("### Demand Analysis")
         cd1, cd2 = st.columns(2)
         with cd1:
@@ -659,7 +624,6 @@ elif page == "📍 Area Intelligence":
         
         st.markdown("<hr/>", unsafe_allow_html=True)
         
-        # SECTION 3: VEHICLE INTELLIGENCE
         st.markdown("### Vehicle Intelligence")
         cv1, cv2 = st.columns(2)
         with cv1:
@@ -676,7 +640,6 @@ elif page == "📍 Area Intelligence":
             
         st.markdown("<hr/>", unsafe_allow_html=True)
         
-        # SECTION 4: CANCELLATION ANALYSIS
         st.markdown("### Cancellation Analysis")
         cc1, cc2 = st.columns(2)
         with cc1:
@@ -691,7 +654,6 @@ elif page == "📍 Area Intelligence":
             f_ch.update_layout(**get_chart_layout("Cancellations vs Hour"))
             st.plotly_chart(f_ch, use_container_width=True)
             
-        # Top Cancellation reasons
         cc3, cc4 = st.columns(2)
         with cc3:
             if 'Reason for Cancelling by Driver' in df_area.columns:
@@ -718,7 +680,6 @@ elif page == "📍 Area Intelligence":
                     
         st.markdown("<hr/>", unsafe_allow_html=True)
         
-        # SECTION 5: PAYMENT ANALYSIS
         st.markdown("### Payment Analysis")
         cp1, cp2 = st.columns(2)
         df_pay_a = df_area[df_area['Payment Method'] != 'Unknown']
@@ -743,11 +704,9 @@ elif page == "📍 Area Intelligence":
             
         st.markdown("<hr/>", unsafe_allow_html=True)
         
-        # SECTION 6: INSIGHT ENGINE
         st.markdown("### 🧠 Insight Engine (AI)")
         insights = []
         
-        # Avoid division by zero
         avg_overall = len(df) / df['Pickup Location'].nunique() if df['Pickup Location'].nunique() > 0 else 0
         
         if total_rides > avg_overall * 1.5:
@@ -765,12 +724,8 @@ elif page == "📍 Area Intelligence":
         for insight in insights:
             st.markdown(f"<div class='insight-box'>{insight}</div>", unsafe_allow_html=True)
 
-
-
 elif page == "🔮 Predict Demand":
-    # ------------------------------------------------------------------------------
-    # PRESERVED PREDICTION FUNCTIONALITY (Upgraded UI wrapper)
-    # ------------------------------------------------------------------------------
+                                                                                    
     st.markdown("<h1>🔮 Predict Engine</h1>", unsafe_allow_html=True)
     st.markdown("<p class='subtitle'>Live ML-driven demand forecasting via FastAPI backend.</p>", unsafe_allow_html=True)
     
@@ -781,7 +736,6 @@ elif page == "🔮 Predict Demand":
         3: "Thursday", 4: "Friday", 5: "Saturday", 6: "Sunday"
     }
     
-    # We can autogenerate Bangalore locations from the dataframe dynamically!
     locations = sorted([loc for loc in df['Pickup Location'].unique() if pd.notna(loc)])
     if not locations:
         locations = ["Area-" + str(i) for i in range(1, 51)]
@@ -813,7 +767,7 @@ elif page == "🔮 Predict Demand":
         if st.button("🚀 Run Live Inference", use_container_width=True):
             with st.spinner("🧠 Connecting to API..."):
                 try:
-                    # Reverse map generic location back to 'Area-X' for backend model
+                                                                                     
                     REVERSE_AREA_MAP = {v: k for k, v in GLOBAL_AREA_MAP.items()}
                     backend_location = REVERSE_AREA_MAP.get(location_display, location_display)
                 
@@ -837,31 +791,312 @@ elif page == "🔮 Predict Demand":
     with c_output:
         if st.session_state.prediction_result:
             res = st.session_state.prediction_result
+            base_demand = res.get("base_predicted_demand", 0)
             demand_val = res.get("predicted_demand", 0)
-            demand_str = res.get("demand_level", "Unknown")
             
-            badge_class = "badge-warning"
-            emoji = "🟡"
-            if "low" in demand_str.lower():
+            f_hours = res.get("forecast_hours", [])
+            f_demands = res.get("forecast_demands", [])
+            a_hours = res.get("actual_hours", [])
+            a_demands = res.get("actual_demands", [])
+            
+            vehicle_rec = res.get("vehicle_recommendation", "")
+            surge_alert = res.get("surge_alert", False)
+            area_warning = res.get("area_warning", False)
+            spike_risk = res.get("spike_risk", "✅ Low")
+            
+            if demand_val < 2:
+                demand_str = "Low"
                 badge_class = "badge-success"
                 emoji = "🟢"
-            elif "high" in demand_str.lower():
+            elif demand_val <= 4:
+                demand_str = "Medium"
+                badge_class = "badge-warning"
+                emoji = "🟡"
+            else:
+                demand_str = "High"
                 badge_class = "badge-danger"
                 emoji = "🔴"
+            
+            if "High" in spike_risk:
+                spike_color = "#FF4757"
+                spike_text = "⚠️ High spike risk detected — demand surge likely in the next hour"
+            elif "Moderate" in spike_risk:
+                spike_color = "#FFC107"
+                spike_text = "⚡ Moderate spike risk — possible demand increase"
+            else:
+                spike_color = "#00FFAE"
+                spike_text = "✅ Stable demand expected"
                 
             st.markdown(f"""
-                <div style="text-align:center;">
-                    <h3 style="color:#A0AEC0; margin-bottom:10px;">Predicted Volume</h3>
-                    <div style="font-size: 5rem; font-weight: 800; color: #FAFAFA; line-height:1; margin-bottom: 20px;">
+                <div class="custom-card" style="text-align:center;">
+                    <h3 style="color:#A0AEC0; margin-bottom:10px;">Next Hour Predicted Volume</h3>
+                    <div style="font-size: 4.5rem; font-weight: 800; color: #00FFAE; line-height:1; margin-bottom: 10px;">
                         {demand_val:,.1f}
                     </div>
                     <div style="margin-bottom: 20px;">
-                        <span style="color:#A0AEC0; margin-right: 15px;">Network Status:</span>
-                        <span class="badge {badge_class}" style="font-size: 1.2rem; padding: 8px 20px;">{emoji} {demand_str.upper()} DEMAND</span>
+                        <span class="badge {badge_class}" style="font-size: 1.1rem; padding: 6px 15px; margin-right: 10px;">{emoji} {demand_str.upper()} DEMAND</span>
                     </div>
-                    <p style="color: #64748B; font-size: 0.9rem;">Powered by Random Forest Regressor Matrix</p>
+                    <div style="margin-top: 15px; padding: 10px; border-radius: 8px; background: rgba(255,255,255,0.05);">
+                        <span style="color: {spike_color}; font-weight: 700; font-size: 1.1rem;">{spike_text}</span>
+                    </div>
                 </div>
             """, unsafe_allow_html=True)
+            
+            if f_hours and a_hours:
+                x_seq = list(range(len(a_hours) + len(f_hours)))
+                y_seq = a_demands + f_demands
+                types = ["Actual (Recent)"] * len(a_hours) + ["Forecast (Future)"] * len(f_hours)
+                hover_labels = [format_hour(h) for h in a_hours] + [format_hour(h) for h in f_hours]
+                
+                df_graph = pd.DataFrame({"Timepoint": hover_labels, "Demand": y_seq, "Phase": types})
+                
+                fig = px.line(df_graph, x="Timepoint", y="Demand", color="Phase", line_dash="Phase", markers=True,
+                              color_discrete_map={"Actual (Recent)": "#A0AEC0", "Forecast (Future)": "#00FFAE"},
+                              line_dash_map={"Actual (Recent)": "solid", "Forecast (Future)": "dash"})
+                fig.update_layout(**get_chart_layout("Demand Trajectory"))
+                st.plotly_chart(fig, use_container_width=True)
+
+            st.markdown("### 🧠 Forecast & Recommendations")
+            
+            if "High" in spike_risk:
+                req_text = "🚗 Recommendation: Increase driver supply in this area immediately"
+            elif "Moderate" in spike_risk:
+                req_text = "🚗 Recommendation: Monitor demand and adjust supply"
+            else:
+                req_text = "🚗 Recommendation: Normal operations"
+                
+            st.markdown(f"""
+            <div class="insight-box" style="margin-bottom: 15px; border-left-color: #00FFAE;">
+                <b>{req_text}</b>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            if surge_alert:
+                st.markdown("""<div class="insight-box" style="border-left-color: #FFC107; background: rgba(255,193,7,0.1) !important; margin-bottom: 15px;">
+                <b>⚠️ Surge Likely in this Area</b><br/>High demand momentum + High Wait Time (CTAT) + Cancellation Spike detected. Deploy Surge multiplier.
+                </div>""", unsafe_allow_html=True)
+                
+            if area_warning:
+                st.markdown("""<div class="insight-box" style="border-left-color: #FF4757; background: rgba(255,71,87,0.1) !important; margin-bottom: 15px;">
+                <b>🔥 High Demand Zone</b><br/>Driver shortage possible. Route nearby idle drivers to this node immediately.
+                </div>""", unsafe_allow_html=True)
+
+            st.markdown("<br/>", unsafe_allow_html=True)
+            
+            st.markdown("<hr/>", unsafe_allow_html=True)
+            
+            area_status_emoji = "🟢"
+            area_status_label = "Normal Zone"
+            area_status_color = "#00FFAE"
+            
+            is_high_demand = demand_val > 4
+            is_medium_demand = demand_val >= 2
+            is_high_spike = "High" in spike_risk
+            is_moderate_spike = "Moderate" in spike_risk
+            
+            if is_high_demand or is_high_spike:
+                area_status_emoji = "🔴"
+                area_status_label = "High Load Zone"
+                area_status_color = "#FF4757"
+            elif is_medium_demand or is_moderate_spike:
+                area_status_emoji = "🟡"
+                area_status_label = "Busy Zone"
+                area_status_color = "#FFC107"
+            
+            st.markdown(f"""
+                <div class="custom-card" style="text-align:center; border: 1px solid {area_status_color}30;">
+                    <div style="font-size: 2.5rem; margin-bottom: 5px;">{area_status_emoji}</div>
+                    <div style="font-size: 1.4rem; font-weight: 700; color: {area_status_color}; margin-bottom: 5px;">{area_status_label}</div>
+                    <div style="font-size: 0.85rem; color: #A0AEC0;">Demand: {demand_str} | Spike: {spike_risk}</div>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            vehicle_demand_data = res.get("vehicle_demand", {})
+            
+            if vehicle_demand_data:
+                st.markdown("### 🚗 Vehicle Demand Breakdown (Next Hour)")
+                
+                veh_values = list(vehicle_demand_data.values())
+                veh_max = max(veh_values) if veh_values else 1
+                veh_min = min(veh_values) if veh_values else 0
+                veh_range = veh_max - veh_min if veh_max != veh_min else 1
+                
+                veh_types = list(vehicle_demand_data.keys())
+                veh_cols = st.columns(min(len(veh_types), 5))
+                
+                veh_icons = {"Auto": "🛺", "Mini": "🚗", "Sedan": "🚘", "Bike": "🏍️", "SUV": "🚙"}
+                
+                for idx, vtype in enumerate(veh_types):
+                    veh_val = vehicle_demand_data[vtype]
+                    col_idx = idx % min(len(veh_types), 5)
+                    
+                    normalized = (veh_val - veh_min) / veh_range if veh_range > 0 else 0.5
+                    
+                    if normalized >= 0.66:
+                        veh_level = "HIGH"
+                        veh_badge = "badge-danger"
+                        veh_color = "#FF4757"
+                    elif normalized >= 0.33:
+                        veh_level = "MEDIUM"
+                        veh_badge = "badge-warning"
+                        veh_color = "#FFC107"
+                    else:
+                        veh_level = "LOW"
+                        veh_badge = "badge-success"
+                        veh_color = "#00FFAE"
+                    
+                    icon = veh_icons.get(vtype, "🚗")
+                    
+                    with veh_cols[col_idx]:
+                        st.markdown(f"""
+                        <div class="custom-card" style="text-align:center; padding: 15px;">
+                            <div style="font-size: 1.8rem;">{icon}</div>
+                            <div style="font-size: 0.85rem; color: #A0AEC0; font-weight: 600; margin: 5px 0;">{vtype}</div>
+                            <div style="font-size: 1.6rem; font-weight: 700; color: {veh_color};">{veh_val:.1f}</div>
+                            <span class="badge {veh_badge}" style="margin-top: 8px;">{veh_level}</span>
+                        </div>
+                        """, unsafe_allow_html=True)
+                
+                veh_df = pd.DataFrame({
+                    "Vehicle Type": list(vehicle_demand_data.keys()),
+                    "Estimated Demand": list(vehicle_demand_data.values())
+                }).sort_values("Estimated Demand", ascending=True)
+                
+                fig_veh = px.bar(
+                    veh_df, x="Estimated Demand", y="Vehicle Type",
+                    orientation="h",
+                    color="Estimated Demand",
+                    color_continuous_scale=[[0, "#00FFAE"], [0.5, "#00B8FF"], [1, "#A855F7"]],
+                    text_auto=".2f"
+                )
+                fig_veh.update_layout(**get_chart_layout("Vehicle-Wise Estimated Demand"))
+                fig_veh.update_layout(coloraxis_showscale=False)
+                fig_veh.update_traces(textposition="outside", textfont_size=12)
+                st.plotly_chart(fig_veh, use_container_width=True)
+            
+            st.markdown("<hr/>", unsafe_allow_html=True)
+            
+            if f_hours and f_demands:
+                st.markdown("### ⏱️ Next 5 Hour Forecast")
+                
+                peak_idx = f_demands.index(max(f_demands))
+                peak_hour_val = f_hours[peak_idx]
+                peak_demand_val = f_demands[peak_idx]
+                
+                st.markdown(f"""
+                    <div class="custom-card" style="text-align:center; border: 1px solid rgba(255, 71, 87, 0.3); background: rgba(255, 71, 87, 0.05);">
+                        <div style="font-size: 1.5rem; margin-bottom: 5px;">🔥</div>
+                        <div style="font-size: 0.85rem; color: #A0AEC0; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">Peak Expected Time</div>
+                        <div style="font-size: 2rem; font-weight: 800; color: #FF4757; margin: 5px 0;">{format_hour(peak_hour_val)}</div>
+                        <div style="font-size: 0.9rem; color: #E2E8F0;">Predicted Volume: {peak_demand_val:.1f}</div>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                forecast_rows = ""
+                for i, (fh, fd) in enumerate(zip(f_hours, f_demands)):
+                    is_peak_row = (i == peak_idx)
+                    row_bg = "rgba(255, 71, 87, 0.1)" if is_peak_row else "transparent"
+                    peak_marker = " 🔥" if is_peak_row else ""
+                    bar_width = (fd / max(f_demands)) * 100 if max(f_demands) > 0 else 0
+                    bar_color = "#FF4757" if is_peak_row else "#00FFAE"
+                    
+                    forecast_rows += f"""
+                    <div style="display: flex; align-items: center; padding: 10px 15px; background: {row_bg}; border-radius: 6px; margin-bottom: 4px;">
+                        <div style="width: 120px; font-weight: 600; color: #E2E8F0;">{format_hour(fh)}{peak_marker}</div>
+                        <div style="flex: 1; margin: 0 15px;">
+                            <div style="height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                                <div style="width: {bar_width}%; height: 100%; background: {bar_color}; border-radius: 4px;"></div>
+                            </div>
+                        </div>
+                        <div style="width: 60px; text-align: right; font-weight: 700; color: {bar_color};">{fd:.1f}</div>
+                    </div>"""
+                
+                st.markdown(f"""
+                    <div class="custom-card">
+                        {forecast_rows}
+                    </div>
+                """, unsafe_allow_html=True)
+            
+            st.markdown("<hr/>", unsafe_allow_html=True)
+            
+            city_avg = res.get("city_avg_demand", 0)
+            
+            if city_avg > 0:
+                st.markdown("### 📊 Area Demand vs City Average")
+                
+                delta = demand_val - city_avg
+                delta_pct = (delta / city_avg * 100) if city_avg > 0 else 0
+                
+                if delta > 0:
+                    comp_badge = "ABOVE AVERAGE"
+                    comp_color = "#FF4757"
+                    comp_icon = "⬆️"
+                else:
+                    comp_badge = "BELOW AVERAGE"
+                    comp_color = "#00FFAE"
+                    comp_icon = "⬇️"
+                
+                comp_c1, comp_c2 = st.columns(2)
+                
+                with comp_c1:
+                    st.markdown(f"""
+                    <div class="custom-card" style="text-align:center;">
+                        <div class="metric-label">{location_display}</div>
+                        <div class="metric-value" style="color: #00B8FF;">{demand_val:.1f}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                with comp_c2:
+                    st.markdown(f"""
+                    <div class="custom-card" style="text-align:center;">
+                        <div class="metric-label">City Average</div>
+                        <div class="metric-value" style="color: #A0AEC0;">{city_avg:.1f}</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+                
+                st.markdown(f"""
+                    <div style="text-align:center; margin: 10px 0 20px 0;">
+                        <span style="font-size: 1.1rem; font-weight: 700; color: {comp_color};">
+                            {comp_icon} {comp_badge} <span style="font-weight: 400; color: #A0AEC0;">({delta_pct:+.0f}%)</span>
+                        </span>
+                    </div>
+                """, unsafe_allow_html=True)
+                
+                comp_df = pd.DataFrame({
+                    "Category": [location_display, "City Average"],
+                    "Demand": [demand_val, city_avg]
+                })
+                fig_comp = px.bar(
+                    comp_df, x="Category", y="Demand",
+                    color="Category",
+                    color_discrete_map={location_display: "#00B8FF", "City Average": "#64748B"},
+                    text_auto=".2f"
+                )
+                fig_comp.update_layout(**get_chart_layout(""))
+                fig_comp.update_layout(showlegend=False, height=300)
+                fig_comp.update_traces(textposition="outside")
+                st.plotly_chart(fig_comp, use_container_width=True)
+            
+            st.markdown("<hr/>", unsafe_allow_html=True)
+            
+            explain_bullets = res.get("explainability", [])
+            
+            if explain_bullets:
+                st.markdown("### 🧪 Why This Prediction?")
+                
+                bullets_html = ""
+                for bullet in explain_bullets:
+                    bullets_html += f"""<div style="padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: #E2E8F0; font-size: 0.92rem; line-height: 1.6;">{bullet}</div>"""
+                
+                st.markdown(f"""
+                    <div class="custom-card">
+                        <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: #64748B; font-weight: 600; margin-bottom: 10px;">Model Explainability</div>
+                        {bullets_html}
+                    </div>
+                """, unsafe_allow_html=True)
+            
+            st.markdown("<br/>", unsafe_allow_html=True)
+
         else:
             st.markdown("""
                 <div style="text-align: center; color: #64748B;">
@@ -870,12 +1105,6 @@ elif page == "🔮 Predict Demand":
                 </div>
             """, unsafe_allow_html=True)
 
-
-
-
-# ------------------------------------------------------------------------------
-# 7. FOOTER LOGIC
-# ------------------------------------------------------------------------------
 def render_footer():
     st.markdown("""
         <style>
@@ -906,5 +1135,4 @@ def render_footer():
         </div>
     """, unsafe_allow_html=True)
 
-# Call the footer at the very end of app execution
 render_footer()
