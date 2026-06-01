@@ -1,27 +1,58 @@
---- Model Comparison Results ---
+--- Final Project: Model Comparison Results ---
+Date: 2026-05-06 03:03:54
 
-Random Forest - MAE: 0.80, RMSE: 1.02
-XGBoost       - MAE: 0.80, RMSE: 1.02
+MASTER COMPARISON TABLE (All Metrics):
+         Model      MAE     RMSE      MAPE
+Naive Baseline 1.007285 1.394906 62.096873
+         ARIMA 0.791124 0.990680 48.294189
+  Holt-Winters 0.792528 0.994249 47.998721
+ Random Forest 0.787228 0.987010 49.894671
+       XGBoost 0.799113 1.005451 50.742218
+     LSTM (DL) 0.790675 0.989782 48.324736
 
 Best Performing Model: Random Forest Regressor
-Explanation: Random Forest predictions are closer to actual demand by 0.00 rides per hour on average.
+Explanation: ML Model improves baseline globally by 0.22 MAE.
 
-First 10 Predictions vs Actual Values:
+Sample Predictions (Best Model) vs Actual Values:
    Actual Demand  Predicted Demand
-0              2                 2
-1              2                 2
-2              2                 2
-3              2                 2
-4              2                 2
-5              1                 2
-6              5                 2
-7              1                 2
-8              1                 2
-9              1                 2
+0            2.0                 2
+1            1.0                 2
+2            1.0                 2
+3            2.0                 2
+4            3.0                 2
+5            2.0                 2
+6            3.0                 2
+7            1.0                 2
+8            2.0                 2
+9            2.0                 2
 
 Feature Importance Analysis (Random Forest Regressor):
- - Hour: 31.59%
- - Day_of_Week: 23.27%
- - Location_Encoded: 41.06%
- - is_weekend: 1.84%
- - peak_hour: 2.24%
+ - Hour: 7.05%
+ - Day_of_Week: 3.77%
+ - Location_Encoded: 19.04%
+ - is_weekend: 0.41%
+ - peak_hour: 1.04%
+ - lag_1: 3.25%
+ - lag_24: 6.79%
+ - lag_168: 6.40%
+ - rolling_mean_3: 6.65%
+ - rolling_mean_6: 11.72%
+ - momentum: 7.03%
+ - sin_hour: 6.25%
+ - cos_hour: 6.17%
+ - sin_day: 5.32%
+ - cos_day: 2.89%
+ - rolling_std_3: 6.23%
+
+============================================================
+SPIKE CLASSIFIER (ANOMALY DETECTION) PERFORMANCE:
+ - Accuracy:  83.05%
+ - Precision: 0.0154
+ - Recall:    0.1500
+============================================================
+
+============================================================
+ACADEMIC CHALLENGES & LIMITATIONS:
+- Prophet: Implementation attempted but often faces Stan/C++ compiler issues on Windows.
+- LSTM: Requires significant computational resources and data sequence tuning.
+============================================================
