@@ -6,7 +6,6 @@ file_path = r'd:\College\DS\TS\frontend\app.py'
 with open(file_path, 'r', encoding='utf-8') as f:
     content = f.read()
 
-# 1. Update Navigation Menu
 nav_search = """            "❌ Cancellation Intelligence",
             "🔮 Predict Demand"
         ],"""
@@ -16,8 +15,6 @@ nav_replace = """            "❌ Cancellation Intelligence",
         ],"""
 content = content.replace(nav_search, nav_replace)
 
-
-# 2. Add Area Intelligence Module right before "elif page == '🔮 Predict Demand':"
 predict_target = 'elif page == "🔮 Predict Demand":'
 
 area_code = """elif page == "📍 Area Intelligence":
@@ -184,14 +181,9 @@ area_code = """elif page == "📍 Area Intelligence":
         for insight in insights:
             st.markdown(f"<div class='insight-box'>{insight}</div>", unsafe_allow_html=True)
 
-
 """
 
 content = content.replace(predict_target, area_code + "\n" + predict_target)
-
-# 3. Add reverse mapping logic in the API request block
-# Find: `response = requests.post(API_URL, json=payload, timeout=5)`
-# Replace with Reverse mapped location
 
 api_call_search = """                try:
                     payload = {
